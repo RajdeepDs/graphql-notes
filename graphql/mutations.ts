@@ -26,10 +26,10 @@ export const UPDATE_NOTE = gql`
   mutation Mutation($id: ID!, $title: String, $content: String) {
     updateNote(id: $id, title: $title, content: $content) {
       id
-      updatedAt
-      createdAt
-      content
       title
+      content
+      createdAt
+      updatedAt
     }
   }
 `;
