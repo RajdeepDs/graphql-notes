@@ -8,13 +8,46 @@ export const resolvers = {
         where: {
           id: args.id,
         },
+        include: {
+          Tag: true,
+        },
       });
     },
     notes: async (parent: any, args: any, context: Context) => {
-      return await context.prisma.note.findMany();
+      return await context.prisma.note.findMany({
+        include: {
+          Tag: true,
+        },
+      });
+    },
+    tags: async (parent: any, args: any, context: Context) => {
+      return await context.prisma.tag.findMany();
     },
   },
   Mutation: {
+    createTag: async (parent: any, args: any, context: Context) => {
+      return await context.prisma.tag.create({
+        data: {
+          name: args.name,
+        },
+      });
+    },
+    addTagsToNote: async (parent: any, args: any, context: Context) => {
+      const { noteId, tagIds } = args;
+      return await context.prisma.note.update({
+        where: {
+          id: noteId,
+        },
+        data: {
+          Tag: {
+            connect: tagIds.map((tagId: string) => ({ id: tagId })),
+          },
+        },
+        include: {
+          Tag: true, // Updated include field name to "tags"
+        },
+      });
+    },
     createNote: async (parent: any, args: any, context: Context) => {
       const user = await getCurrentUser();
       const userId = user?.id;
@@ -51,6 +84,11 @@ export const resolvers = {
       return await context.prisma.note
         .findUnique({ where: { id: parent.id } })
         .author();
+    },
+    tags: async (parent: any, args: any, context: Context) => {
+      return await context.prisma.note
+        .findUnique({ where: { id: parent.id } })
+        .Tag();
     },
   },
 };

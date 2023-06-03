@@ -70,5 +70,17 @@ model Note {
 
   author User @relation(fields: [authorId], references: [id])
 
+  tagId String[] @db.ObjectId
+  tags  Tag[]    @relation(fields: [tagId], references: [id])
+
   @@map(name: "notes")
+}
+
+model Tag {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  noteIDs String[] @db.ObjectId
+  notes   Note[]   @relation(fields: [noteIDs], references: [id])
+
+  @@map(name: "tags")
 }
