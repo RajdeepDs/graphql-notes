@@ -13,15 +13,23 @@ export const resolvers = {
       });
     },
     notes: async (parent: any, args: any, context: Context) => {
+      const user = await getCurrentUser();
+      const userId = user?.id;
       return await context.prisma.note.findMany({
+        where: {
+          authorId: userId,
+        },
         include: {
           tags: true,
         },
       });
     },
     notesByTag: async (parent: any, args: any, context: Context) => {
+      const user = await getCurrentUser();
+      const userId = user?.id;
       return await context.prisma.note.findMany({
         where: {
+          authorId: userId,
           tags: {
             some: {
               id: args.tagId,
@@ -34,7 +42,9 @@ export const resolvers = {
       });
     },
     tags: async (parent: any, args: any, context: Context) => {
-      return await context.prisma.tag.findMany();
+      const user = await getCurrentUser();
+      const userId = user?.id;
+      return await context.prisma.tag.findMany({});
     },
   },
   Mutation: {
