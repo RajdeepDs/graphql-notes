@@ -9,14 +9,14 @@ export const resolvers = {
           id: args.id,
         },
         include: {
-          Tag: true,
+          tags: true,
         },
       });
     },
     notes: async (parent: any, args: any, context: Context) => {
       return await context.prisma.note.findMany({
         include: {
-          Tag: true,
+          tags: true,
         },
       });
     },
@@ -39,12 +39,12 @@ export const resolvers = {
           id: noteId,
         },
         data: {
-          Tag: {
+          tags: {
             connect: tagIds.map((tagId: string) => ({ id: tagId })),
           },
         },
         include: {
-          Tag: true, // Updated include field name to "tags"
+          tags: true,
         },
       });
     },
@@ -88,7 +88,7 @@ export const resolvers = {
     tags: async (parent: any, args: any, context: Context) => {
       return await context.prisma.note
         .findUnique({ where: { id: parent.id } })
-        .Tag();
+        .tags();
     },
   },
 };
