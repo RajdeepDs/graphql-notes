@@ -1,6 +1,5 @@
 import { getCurrentUser } from "@/lib/session";
 import { Context } from "../app/api/graphql/route";
-import { Prisma } from "@prisma/client";
 export const resolvers = {
   Query: {
     note: async (parent: any, args: any, context: Context) => {
@@ -15,6 +14,20 @@ export const resolvers = {
     },
     notes: async (parent: any, args: any, context: Context) => {
       return await context.prisma.note.findMany({
+        include: {
+          tags: true,
+        },
+      });
+    },
+    notesByTag: async (parent: any, args: any, context: Context) => {
+      return await context.prisma.note.findMany({
+        where: {
+          tags: {
+            some: {
+              id: args.tagId,
+            },
+          },
+        },
         include: {
           tags: true,
         },
