@@ -11,7 +11,7 @@ export const typeDefs = `#graphql
 
     type Tag {
         id: ID!
-        name: String
+        name: String!
     }
 
     type User{
@@ -33,5 +33,6 @@ export const typeDefs = `#graphql
         deleteNote(id: ID!): Note
         createTag(name: String): Tag!
         addTagsToNote (noteId: ID!, tagIds: [ID!]!): Note
+        createNoteWithTags(title: String, content: String, tags: [String!]!): Note!
     }
 `;

@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/session";
 import { Context } from "../app/api/graphql/route";
-
+import { Prisma } from "@prisma/client";
 export const resolvers = {
   Query: {
     note: async (parent: any, args: any, context: Context) => {
@@ -41,6 +41,25 @@ export const resolvers = {
         data: {
           tags: {
             connect: tagIds.map((tagId: string) => ({ id: tagId })),
+          },
+        },
+        include: {
+          tags: true,
+        },
+      });
+    },
+    createNoteWithTags: async (parent: any, args: any, context: Context) => {
+      const user = await getCurrentUser();
+      const userId = user?.id;
+      const { title, content, tags } = args;
+
+      return await context.prisma.note.create({
+        data: {
+          title,
+          content,
+          author: { connect: { id: userId } },
+          tags: {
+            create: tags.map((tagName: string) => ({ name: tagName })),
           },
         },
         include: {
