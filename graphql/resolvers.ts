@@ -55,8 +55,6 @@ export const resolvers = {
     },
   },
   Mutation: {
-    // create note with tags, if tag does not exist, create it, else connect it
-
     createNoteWithTags: async (parent: any, args: any, context: Context) => {
       const user = await getCurrentUser();
       const userId = user?.id;
@@ -82,19 +80,21 @@ export const resolvers = {
       });
       return note;
     },
-
-    // createNote: async (parent: any, args: any, context: Context) => {
-    //   const user = await getCurrentUser();
-    //   const userId = user?.id;
-    //   return await context.prisma.note.create({
-    //     data: {
-    //       title: args.title,
-    //       content: args.content,
-    //       author: { connect: { id: userId } },
-    //     },
-    //   });
-    // },
+    createNote: async (parent: any, args: any, context: Context) => {
+      const user = await getCurrentUser();
+      const userId = user?.id;
+      return await context.prisma.note.create({
+        data: {
+          title: args.title,
+          content: args.content,
+          author: { connect: { id: userId } },
+        },
+      });
+    },
     updateNote: async (parent: any, args: any, context: Context) => {
+      const user = await getCurrentUser();
+      const userId = user?.id;
+      const tags = args.tags;
       return await context.prisma.note.update({
         where: {
           id: args.id,
@@ -103,6 +103,18 @@ export const resolvers = {
           title: args.title,
           content: args.content,
           updatedAt: new Date(),
+          tags: {
+            connectOrCreate: tags.map((tagName: String) => ({
+              where: { name: tagName },
+              create: {
+                name: tagName,
+                author: { connect: { id: userId } },
+              },
+            })),
+          },
+        },
+        include: {
+          tags: true,
         },
       });
     },

@@ -14,11 +14,6 @@ export const typeDefs = `#graphql
         name: String!
         author: User
     }
-
-    input TagWhereUniqueInput {
-        id: String
-        name: String
-    }
           
     type User{
         id: ID!
@@ -34,11 +29,9 @@ export const typeDefs = `#graphql
     }
 
     type Mutation {
-        createNote(title: String, content: String): Note!
-        updateNote(id: ID!, title: String, content: String): Note
-        deleteNote(id: ID!): Note
-        createTag(name: String): Tag!
-        addTagsToNote (noteId: ID!, tagIds: [ID!]!): Note
         createNoteWithTags(title: String, content: String, tags: [String!]!): Note!
+        createNote(title: String, content: String): Note!
+        updateNote(id: ID!, title: String, content: String, tags: [String!]!): Note
+        deleteNote(id: ID!): Note
     }
 `;
