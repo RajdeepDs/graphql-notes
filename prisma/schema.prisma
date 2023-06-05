@@ -32,16 +32,6 @@ model Account {
   @@map(name: "accounts")
 }
 
-model Session {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  sessionToken String   @unique
-  userId       String   @db.ObjectId
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map(name: "sessions")
-}
-
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
@@ -52,9 +42,9 @@ model User {
   updatedAt     DateTime  @default(now()) @map(name: "updated_at")
 
   accounts Account[]
-  sessions Session[]
 
   Note Note[]
+  Tag  Tag[]
 
   @@map(name: "users")
 }
@@ -78,9 +68,12 @@ model Note {
 
 model Tag {
   id      String   @id @default(auto()) @map("_id") @db.ObjectId
-  name    String
+  name    String   @unique
   noteIDs String[] @db.ObjectId
   notes   Note[]   @relation(fields: [noteIDs], references: [id])
+
+  authorId String @db.ObjectId
+  author   User   @relation(fields: [authorId], references: [id])
 
   @@map(name: "tags")
 }

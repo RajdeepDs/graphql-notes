@@ -44,63 +44,56 @@ export const resolvers = {
     tags: async (parent: any, args: any, context: Context) => {
       const user = await getCurrentUser();
       const userId = user?.id;
-      return await context.prisma.tag.findMany({});
+      return await context.prisma.tag.findMany({
+        where: {
+          id: userId,
+        },
+        include: {
+          author: true,
+        },
+      });
     },
   },
   Mutation: {
-    createTag: async (parent: any, args: any, context: Context) => {
-      return await context.prisma.tag.create({
-        data: {
-          name: args.name,
-        },
-      });
-    },
-    addTagsToNote: async (parent: any, args: any, context: Context) => {
-      const { noteId, tagIds } = args;
-      return await context.prisma.note.update({
-        where: {
-          id: noteId,
-        },
-        data: {
-          tags: {
-            connect: tagIds.map((tagId: string) => ({ id: tagId })),
-          },
-        },
-        include: {
-          tags: true,
-        },
-      });
-    },
+    // create note with tags, if tag does not exist, create it, else connect it
+
     createNoteWithTags: async (parent: any, args: any, context: Context) => {
       const user = await getCurrentUser();
       const userId = user?.id;
-      const { title, content, tags } = args;
-
-      return await context.prisma.note.create({
-        data: {
-          title,
-          content,
-          author: { connect: { id: userId } },
-          tags: {
-            create: tags.map((tagName: string) => ({ name: tagName })),
-          },
-        },
-        include: {
-          tags: true,
-        },
-      });
-    },
-    createNote: async (parent: any, args: any, context: Context) => {
-      const user = await getCurrentUser();
-      const userId = user?.id;
-      return await context.prisma.note.create({
+      const tags = args.tags;
+      const note = await context.prisma.note.create({
         data: {
           title: args.title,
           content: args.content,
           author: { connect: { id: userId } },
+          tags: {
+            connectOrCreate: tags.map((tagName: String) => ({
+              where: { name: tagName },
+              create: {
+                name: tagName,
+                author: { connect: { id: userId } },
+              },
+            })),
+          },
+        },
+        include: {
+          tags: true,
         },
       });
+      return note;
     },
+
+    // createNote: async (parent: any, args: any, context: Context) => {
+    //   const user = await getCurrentUser();
+    //   const userId = user?.id;
+    //   return await context.prisma.note.create({
+    //     data: {
+    //       title: args.title,
+    //       content: args.content,
+    //       author: { connect: { id: userId } },
+    //     },
+    //   });
+    // },
     updateNote: async (parent: any, args: any, context: Context) => {
       return await context.prisma.note.update({
         where: {
@@ -131,6 +124,13 @@ export const resolvers = {
       return await context.prisma.note
         .findUnique({ where: { id: parent.id } })
         .tags();
+    },
+  },
+  Tag: {
+    author: async (parent: any, args: any, context: Context) => {
+      return await context.prisma.tag
+        .findUnique({ where: { id: parent.id } })
+        .author();
     },
   },
 };

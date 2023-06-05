@@ -12,8 +12,14 @@ export const typeDefs = `#graphql
     type Tag {
         id: ID!
         name: String!
+        author: User
     }
 
+    input TagWhereUniqueInput {
+        id: String
+        name: String
+    }
+          
     type User{
         id: ID!
         name: String
